@@ -49,7 +49,7 @@ contract Escrow {
         escrower = msg.sender;
     }
 
-    function register(address _joiner, string _nick_name) public is_new {
+    function register(address _joiner, string memory _nick_name) public is_new {
         users[_joiner] = user({
             addr: msg.sender,
             nick_name: _nick_name,
@@ -59,7 +59,7 @@ contract Escrow {
         });
     }
 
-    function initiate_escrow(string _product_name, address _seller, address _buyer, uint256 _amount) public is_registered returns(uint) {
+    function initiate_escrow(string memory _product_name, address _seller, address _buyer, uint256 _amount) public is_registered returns(uint) {
         require(msg.sender == _buyer || msg.sender == _seller, 'Only buyer or seller can initiate escrow');
         require(_buyer != _seller, 'Buyer and seller cant be the same');
         products.push(product({
@@ -93,8 +93,16 @@ contract Escrow {
         users[msg.sender].balance += msg.value;
     }
     
-    function get_user() public returns(uint256) {
+    function get_balance() public view is_registered returns (uint256) {
         return users[msg.sender].balance;
+    }
+    
+    function withdraw() public is_registered returns (uint256) {
+        address payable addr = msg.sender;
+        if(users[msg.sender].balance > 0) {
+            addr.transfer(users[msg.sender].balance);
+        }
+        
     }
     
 }
